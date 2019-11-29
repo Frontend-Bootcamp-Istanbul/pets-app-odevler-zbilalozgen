@@ -10,7 +10,8 @@ class PetList extends React.Component {
     this.state = {
       _pets: [],
       pets: [],
-      yukleniyor: true
+      yukleniyor: true,
+      index: 4
     };
   }
 
@@ -22,6 +23,7 @@ class PetList extends React.Component {
         yukleniyor: false
       });
     });
+    window.addEventListener("scroll", this.scrollHandle);
   }
 
   componentDidUpdate(prevProps) {
@@ -31,6 +33,10 @@ class PetList extends React.Component {
     if (prevProps.searchValue !== this.props.searchValue) {
       this.filterPets();
     }
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener("scroll", this.scrollHandle);
   }
 
   filterPets = () => {
@@ -53,6 +59,19 @@ class PetList extends React.Component {
     }
   };
 
+  scrollHandle = () => {
+    window.onscroll = () => {
+      if (
+        window.innerHeight + window.scrollY >=
+        document.body.scrollHeight - 2
+      ) {
+        this.setState({
+          index: this.state.index + 4
+        });
+      }
+    };
+  };
+
   render() {
     const Yukleniyor = <div>Yukleniyor</div>;
     const EmptyPets = <div>Bulunamadı</div>;
@@ -60,7 +79,7 @@ class PetList extends React.Component {
       <>
         <h3>Gösterilen Pet Sayısı:{this.state.pets.length} </h3>,
         <div className="row">
-          {this.state.pets.map(pet => {
+          {this.state.pets.slice(0, this.state.index).map(pet => {
             return <Pet key={Math.random()} {...pet} />;
           })}
         </div>
